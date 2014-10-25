@@ -5,6 +5,7 @@ then
 	exit 1;
 fi
 
+V_SCRIPT_FOLDER=$(cd "$(dirname "$0")"; pwd)
 PACKAGE_SOURCE=$1
 PACKAGE_TARGET=$2
 TYPE=$3
@@ -25,7 +26,7 @@ tar zxf ./src.tgz
 rm -f ./src.tgz
 
 #step 2. building
-cd /home/cloud/services/osi_builder/builder/
+cd ${V_SCRIPT_FOLDER}
 ./build_${TYPE}_mysql_schemas.sh /tmp/$SEED/src  /tmp/$SEED/dst
 
 #step 3. packup result files to packages
