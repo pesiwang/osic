@@ -1,0 +1,80 @@
+<?php
+class ObjectStorage<!--{if isset($current_router)}-->Current<!--{else}-->Obsolete<!--{/if}-->_<!--{$object->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['database']) || !isset($connParam['collection']))
+			throw new ObjectException('incorrect redis parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function get($id){
+		$object = null;
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$data = $collection->findOne(array('_id' => $id));
+			if(is_array($data)){
+				$object = new Object_<!--{$object->getName()|name2class}-->();
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+				if(isset($data['<!--{$field}-->']))
+					$object->set<!--{$field|ucfirst}-->($data['<!--{$field}-->']);
+<!--{/foreach}-->
+			}
+		}
+		catch(Exception $e){
+			throw new ObjectException('failed on GET command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+		return $object;
+	}
+
+	public function gets(Array $ids){
+		$objects = array();
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$datas = iterator_to_array($collection->find(array('_id' => array('$in' => $ids))));
+			foreach($datas as $id => $data){
+				$object = new Object_<!--{$object->getName()|name2class}-->();
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+				if(isset($data['<!--{$field}-->']))
+					$object->set<!--{$field|ucfirst}-->($data['<!--{$field}-->']);
+<!--{/foreach}-->
+				$objects[$id] = $object;
+			}
+		}
+		catch(Exception $e){
+			throw new ObjectException('failed on MGET command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+		return $objects;
+	}
+	
+	public function set($id, Object_<!--{$object->getName()|name2class}--> $object){
+		$data = array('_id' => $id);
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+		$data['<!--{$field}-->'] = $object->get<!--{$field|ucfirst}-->();
+<!--{/foreach}-->
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$collection->save($data);
+		}
+		catch(Exception $e){
+			throw new ObjectException('failed on SET command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	public function del($id){
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$collection->remove(array('_id' => $id));
+		}
+		catch(Exception $e){
+			throw new ObjectException('failed on DEL command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	//------------private functions-------------//
+	
+	static private function _connectToMedia($connParam){
+		$mongo = new Mongo('mongodb://' . $connParam['host'] . ':' . $connParam['port']);
+        return $mongo->selectCollection($connParam['database'], $connParam['collection']);
+	}
+}

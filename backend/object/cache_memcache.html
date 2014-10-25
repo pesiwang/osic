@@ -1,0 +1,80 @@
+<?php
+class ObjectCache<!--{if isset($current_router)}-->Current<!--{else}-->Obsolete<!--{/if}-->_<!--{$object->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['prefix']))
+			throw new ObjectException('incorrect memcache parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function get($id){
+		$memcache = self::_connectToMedia($this->_connParam);
+		$object = null;
+		$data = $memcache->get($this->_connParam['prefix'] . $id);
+		if(is_array($data)){
+			$object = new Object_<!--{$object->getName()|name2class}-->();
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+			if(isset($data['<!--{$field}-->']))
+				$object->set<!--{$field|ucfirst}-->($data['<!--{$field}-->']);
+<!--{/foreach}-->
+		}
+		else if($memcache->getResultCode() != Memcached::RES_NOTFOUND)
+			throw new ObjectException('failed on GET command to Memcache server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $memcache->getResultMessage());
+		
+		return $object;
+	}
+	
+	public function gets(Array $ids){
+		$memcache = self::_connectToMedia($this->_connParam);
+		$real_ids = array();
+		foreach($ids as $id)
+			$real_ids[] = $this->_connParam['prefix'] . $id;
+
+		$objects = array();
+		$datas = $memcache->getMulti($real_ids);
+		if(is_array($datas)){
+			$prefix_length = strlen($this->_connParam['prefix']);
+			foreach($datas as $id => $data){
+				$object = new Object_<!--{$object->getName()|name2class}-->();
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+				if(isset($data['<!--{$field}-->']))
+					$object->set<!--{$field|ucfirst}-->($data['<!--{$field}-->']);
+<!--{/foreach}-->
+				$objects[substr($id, $prefix_length)] = $object;
+			}
+		}
+		else if($memcache->getResultCode() != Memcached::RES_NOTFOUND)
+			throw new ObjectException('failed on GETS command to Memcache server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $memcache->getResultMessage());
+		return $objects;
+	}
+	
+	public function set($id, Object_<!--{$object->getName()|name2class}--> $object){
+		$memcache = self::_connectToMedia($this->_connParam);
+		$data = array();
+<!--{foreach from=$object->getFields()|array_keys item=field}-->
+		$data['<!--{$field}-->'] = $object->get<!--{$field|ucfirst}-->();
+<!--{/foreach}-->
+		$result = $memcache->set($this->_connParam['prefix'] . $id, $data);
+		if(!$result)
+			throw new ObjectException('failed on SET command to Memcache server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $memcache->getResultMessage());
+	}
+	
+	public function del($id){
+		$memcache = self::_connectToMedia($this->_connParam);
+		$memcache->delete($this->_connParam['prefix'] . $id);
+	}
+	
+	//------------private functions-------------//
+	
+	static private function _connectToMedia($connParam){
+		$memcache = new Memcached($connParam['host'] . $connParam['port']);
+		if(count($memcache->getServerList()) == 0){
+			$memcache->addServer($connParam['host'], $connParam['port']);
+			$memcache->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
+			$memcache->setOption(Memcached::OPT_SERIALIZER, Memcached::SERIALIZER_IGBINARY);
+			$memcache->setOption(Memcached::OPT_TCP_NODELAY, true);
+		}
+		return $memcache;
+	}
+}

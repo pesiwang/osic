@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queue>
+	<key type="STRING" length="32"/>
+    <element type="STRING" length="32"/>
+    <capacity>100</capacity>
+    <fields>
+        <field name="time" type="INTEGER">0</field>
+        <field name="name" type="STRING" length="32"></field>
+        <field name="icon" type="STRING" length="512"></field>
+        <field name="vip" type="STRING" length="14">0|0|0</field>
+        <field name="weight" type="INTEGER">0</field>
+        <field name="installed" type="INTEGER">0</field>
+    </fields>
+</queue>

@@ -1,0 +1,61 @@
+<?php
+class QueueStorage<!--{if isset($current_router)}-->Current<!--{else}-->Obsolete<!--{/if}-->_<!--{$queue->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['prefix']))
+			throw new QueueException('incorrect redis parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function load($id){
+		$elements = array();
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$datas = igbinary_unserialize($redis->get($this->_connParam['prefix'] . $id));
+			if(is_array($datas)){
+				foreach($datas as $elementId => $attrs){
+					$element = new QueueElement_<!--{$queue->getName()|name2class}-->();
+                    $element->setId($attrs['id']);
+<!--{foreach from=$queue->getFields()|array_keys item=field}-->
+					if(isset($attrs['<!--{$field}-->']))
+						$element->set<!--{$field|ucfirst}-->($attrs['<!--{$field}-->']);
+<!--{/foreach}-->
+					$elements[] = $element;
+				}
+			}
+		}
+		catch(Exception $e){
+			throw new QueueException('failed on GET command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+		return $elements;
+	}
+	
+	public function save($id, Array $elements){
+		$datas = array();
+		foreach($elements as $elementId => $element){
+			$attrs = array('id' => $element->getId());
+<!--{foreach from=$queue->getFields()|array_keys item=field}-->
+			$attrs['<!--{$field}-->'] = $element->get<!--{$field|ucfirst}-->();
+<!--{/foreach}-->
+			$datas[] = $attrs;
+		}
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$redis->set($this->_connParam['prefix'] . $id, igbinary_serialize($datas));
+		}
+		catch(Exception $e){
+			throw new QueueException('failed on SET command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	//------------private functions-------------//
+	
+	static private function _connectToMedia($connParam){
+		$redis = new Redis;
+		$succ = $redis->pconnect($connParam['host'], $connParam['port']);
+		if(!$succ)
+			throw new QueueException('failed to connect to Redis server, host=' . $connParam['host'] . ' port=' . $connParam['port']);
+		return $redis;
+	}
+}

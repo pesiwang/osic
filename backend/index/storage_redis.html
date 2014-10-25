@@ -1,0 +1,105 @@
+<?php
+class IndexStorage_<!--{$index->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['prefix']))
+			throw new IndexException('incorrect redis parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function fetch($id, $elementId){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			return $redis->zScore($this->_connParam['prefix'] . $id, $elementId);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZSCORE command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+		return false;
+	}
+	
+	public function put($id, $elementId, $score){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$redis->zAdd($this->_connParam['prefix'] . $id, $score, $elementId);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZADD command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+    }
+
+    public function puts($id, Array $elements){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			foreach($elements as $elementId => $score)
+				$redis->zAdd($this->_connParam['prefix'] . $id, $score, $elementId);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZADD command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+    }
+
+    public function remove($id, $elementId){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$redis->zRemove($this->_connParam['prefix'] . $id, $elementId);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZREMOVE command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+    }
+
+    public function clear($id){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$redis->delete($this->_connParam['prefix'] . $id);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on DELETE command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+    }
+
+    public function count($id){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			$num = $redis->zCard($this->_connParam['prefix'] . $id);
+			if($num === false)
+				return 0;
+			return $num;
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZCARD command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+	}
+
+    public function listAscending($id, $offset, $number){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			return $redis->zRange($this->_connParam['prefix'] . $id, $offset, $offset + $number - 1);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZRANGE command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+    }
+
+    public function listDescending($id, $offset, $number){
+		try{
+			$redis = self::_connectToMedia($this->_connParam);
+			 return $redis->zRevRange($this->_connParam['prefix'] . $id, $offset, $offset + $number - 1);
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on ZREVRANGE command to Redis server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	//------------private functions-------------//
+	
+	private function _connectToMedia($connParam){
+		$redis = new Redis;
+		$succ = $redis->pconnect($connParam['host'], $connParam['port']);
+		if(!$succ)
+			throw new SetException('failed to connect to Redis server, host=' . $connParam['host'] . ' port=' . $connParam['port']);
+		return $redis;
+	}
+}

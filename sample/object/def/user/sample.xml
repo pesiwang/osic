@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<object>
+	<key type="INTEGER"/>
+	<fields>
+		<field name="aaa" type="STRING" length="255"><![CDATA[aaaa]]></field>
+		<field name="ccc" type="INTEGER">0</field>
+		<field name="ddd" type="BIGINT">0</field>
+		<field name="eee" type="BIGINT">10</field>
+	</fields>
+</object>

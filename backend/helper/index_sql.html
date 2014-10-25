@@ -1,0 +1,5 @@
+<!--{if ($router->hasStorage() && ($router->getStorage()->getType() == 'mysql'))}-->
+<!--{foreach from=$router->getStorage()->getConnParams() item=field}-->
+CREATE TABLE <!--{$field['database']}-->.<!--{$field['table']}-->(id <!--{if $index->getKey()->getType() == IndexField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $index->getKey()->getType() == IndexField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$index->getKey()->getLength()}-->) NOT NULL<!--{/if}-->, element_id <!--{if $index->getElement()->getType() == IndexField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $index->getElement()->getType() == IndexField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$index->getElement()->getLength()}-->) NOT NULL<!--{/if}-->, score INTEGER NOT NULL DEFAULT 0, UNIQUE KEY(id, element_id), INDEX(id), INDEX(element_id), INDEX(score)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+<!--{/foreach}-->
+<!--{/if}-->

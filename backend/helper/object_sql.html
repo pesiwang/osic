@@ -1,0 +1,13 @@
+<!--{if ($current_router->hasStorage() && ($current_router->getStorage()->getType() == 'mysql'))}-->
+<!--{foreach from=$current_router->getStorage()->getConnParams() item=field}-->
+<!--{if $object_size<=255}-->
+CREATE TABLE <!--{$field['database']}-->.<!--{$field['table']}-->(id <!--{if $object->getKey()->getType() == ObjectField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $object->getKey()->getType() == ObjectField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$object->getKey()->getLength()}-->) NOT NULL<!--{/if}-->, data TINYBLOB, PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+<!--{elseif $object_size<=65535}-->
+CREATE TABLE <!--{$field['database']}-->.<!--{$field['table']}-->(id <!--{if $object->getKey()->getType() == ObjectField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $object->getKey()->getType() == ObjectField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$object->getKey()->getLength()}-->) NOT NULL<!--{/if}-->, data BLOB, PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+<!--{elseif $object_size<=4294967295}-->
+CREATE TABLE <!--{$field['database']}-->.<!--{$field['table']}-->(id <!--{if $object->getKey()->getType() == ObjectField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $object->getKey()->getType() == ObjectField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$object->getKey()->getLength()}-->) NOT NULL<!--{/if}-->, data MEDIUMBLOB, PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+<!--{else}-->
+CREATE TABLE <!--{$field['database']}-->.<!--{$field['table']}-->(id <!--{if $object->getKey()->getType() == ObjectField::TYPE_INTEGER}-->INTEGER NOT NULL<!--{elseif $object->getKey()->getType() == ObjectField::TYPE_BIGINT}-->BIGINT NOT NULL<!--{else}-->BINARY(<!--{$object->getKey()->getLength()}-->) NOT NULL<!--{/if}-->, data LONGBLOB, PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+<!--{/if}-->
+<!--{/foreach}-->
+<!--{/if}-->

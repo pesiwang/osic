@@ -1,0 +1,138 @@
+<?php
+class IndexStorage_<!--{$index->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['user']) || !isset($connParam['pass']) || !isset($connParam['database']) || !isset($connParam['table']))
+			throw new IndexException('incorrect mysql parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function fetch($id, $elementId){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('SELECT score FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id AND element_id=:element_id');
+			$stmt->bindValue(':id', $id);
+			$stmt->bindValue(':element_id', $elementId);
+			$stmt->execute();
+			if($row = $stmt->fetch(PDO::FETCH_ASSOC))
+				return $row['score'];
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on SELECT command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+		return false;
+	}
+
+	public function put($id, $elementId, $score){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('REPLACE INTO ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' SET id=:id, element_id=:element_id, score=:score');
+			$stmt->bindValue(':id', $id);
+			$stmt->bindValue(':element_id', $elementId);
+			$stmt->bindValue(':score', $score);
+			$stmt->execute();
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on REPLACE INTO command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+
+	public function puts($id, Array $elements){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			foreach($elements as $elementId => $score){
+				$stmt = $pdo->prepare('REPLACE INTO ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' SET id=:id, element_id=:element_id, score=:score');
+				$stmt->bindValue(':id', $id);
+				$stmt->bindValue(':element_id', $elementId);
+				$stmt->bindValue(':score', $score);
+				$stmt->execute();
+			}
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on REPLACE INTO command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+
+	public function remove($id, $elementId){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('DELETE FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id AND element_id=:element_id');
+			$stmt->bindValue(':id', $id);
+			$stmt->bindValue(':element_id', $elementId);
+			$stmt->execute();
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on DELETE command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	public function clear($id){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('DELETE FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id');
+			$stmt->bindValue(':id', $id);
+			$stmt->execute();
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on DELETE command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+
+	public function count($id){
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('SELECT count(*) as num FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id');
+			$stmt->bindValue(':id', $id);
+			$stmt->execute();
+			if($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+				return $row['num'];
+			}
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on SELECT command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+
+	public function listAscending($id, $offset, $number){
+		$elementIds = array();
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('SELECT element_id FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id ORDER BY score ASC LIMIT ' . $offset . ',' . $number);
+			$stmt->bindValue(':id', $id);
+			$stmt->execute();
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+				$elementIds[] = $row['element_id'];
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on SELECT command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+		return $elementIds;
+	}
+
+	public function listDescending($id, $offset, $number){
+		$elementIds = array();
+		try{
+			$pdo = self::_connectToMedia($this->_connParam);
+			$stmt = $pdo->prepare('SELECT element_id FROM ' . $this->_connParam['database'] . '.' . $this->_connParam['table'] . ' WHERE id=:id ORDER BY score DESC LIMIT ' . $offset . ',' . $number);
+			$stmt->bindValue(':id', $id);
+			$stmt->execute();
+			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+				$elementIds[] = $row['element_id'];
+		}
+		catch(Exception $e){
+			throw new IndexException('failed on SELECT command to Mysql server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+		return $elementIds;
+	}
+
+	//------------private functions-------------//
+
+	static private function _connectToMedia($connParam){
+		$dsn = 'mysql:host=' . $connParam['host'] . ';port=' . $connParam['port'];
+		$pdo = new PDO($dsn, $connParam['user'], $connParam['pass'], array(PDO::ATTR_PERSISTENT => true, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''));
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		return $pdo;
+	}
+}

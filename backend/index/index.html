@@ -1,0 +1,35 @@
+<?php
+require_once __DIR__ . '/<!--{$index->getName()|name2file}-->.router.php';
+class Index_<!--{$index->getName()|name2class}-->{
+	static public function fetch($id, $elementId){
+		return IndexRouter_<!--{$index->getName()|name2class}-->::fetch($id, $elementId);
+	}
+
+	static public function put($id, $elementId, $score){
+		IndexRouter_<!--{$index->getName()|name2class}-->::put($id, $elementId, $score);
+	}
+
+	static public function puts($id, Array $elements){
+		IndexRouter_<!--{$index->getName()|name2class}-->::puts($id, $elements);
+	}
+	
+	static public function remove($id, $elementId){
+		IndexRouter_<!--{$index->getName()|name2class}-->::remove($id, $elementId);
+	}
+	
+	static public function clear($id){
+		IndexRouter_<!--{$index->getName()|name2class}-->::clear($id);
+	}
+	
+	static public function count($id){
+		return IndexRouter_<!--{$index->getName()|name2class}-->::count($id);
+	}
+	
+	static public function listAscending($id, $offset, $number){
+		return IndexRouter_<!--{$index->getName()|name2class}-->::listAscending($id, $offset, $number);
+	}
+	
+	static public function listDescending($id, $offset, $number){
+		return IndexRouter_<!--{$index->getName()|name2class}-->::listDescending($id, $offset, $number);
+	}
+}

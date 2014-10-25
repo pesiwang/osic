@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<router>
+	<cache media="memcache">
+		<server range="0">
+			<host>localhost</host>
+			<port>11211</port>
+			<prefix>foo_</prefix>
+		</server>
+		<policy><![CDATA[return 0;]]></policy>
+	</cache>
+	<dset media="redis">
+		<server range="0">
+			<host>localhost</host>
+			<port>11001</port>
+			<name>foo.bar</name>
+		</server>
+		<policy><![CDATA[return 0;]]></policy>
+	</dset>
+	<storage media="mysql">
+		<server range="0-2">
+			<host>localhost</host>
+			<port>3306</port>
+			<user>fanqu</user>
+			<pass>vanchu2010</pass>
+			<database>foo</database>
+			<table>bar_new_{%02x}</table>
+		</server>
+		<policy><![CDATA[return $id % 3;]]></policy>
+	</storage>
+</router>

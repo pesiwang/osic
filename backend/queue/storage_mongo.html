@@ -1,0 +1,59 @@
+<?php
+class QueueStorage<!--{if isset($current_router)}-->Current<!--{else}-->Obsolete<!--{/if}-->_<!--{$queue->getName()|name2class}-->{
+	private $_connParam = null;
+	
+	public function __construct(Array $connParam){
+		if(!is_array($connParam) || !isset($connParam['host']) || !isset($connParam['port']) || !isset($connParam['database']) || !isset($connParam['collection']))
+			throw new QueueException('incorrect redis parameter');
+		$this->_connParam = $connParam;
+	}
+	
+	public function load($id){
+		$elememts = null;
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$datas = $collection->findOne(array('_id' => $id));
+			if(is_array($datas['data'])){
+				$elements = array();
+				foreach($datas['data'] as $elementId => $attrs){
+					$element = new QueueElement_<!--{$queue->getName()|name2class}-->();
+                    $element->setId($attrs['id']);
+<!--{foreach from=$queue->getFields()|array_keys item=field}-->
+					if(isset($attrs['<!--{$field}-->']))
+						$element->set<!--{$field|ucfirst}-->($attrs['<!--{$field}-->']);
+<!--{/foreach}-->
+					$elements[] = $element;
+				}
+			}
+		}
+		catch(Exception $e){
+			throw new QueueException('failed on GET command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port']. ' underlying msg:' . $e->getMessage());
+		}
+		return $elements;
+	}
+
+	public function save($id, Array $elements){
+		$datas = array('_id' => $id, 'data' => array());
+		foreach($elements as $elementId => $element){
+            $data = array('id' => $element->getId());
+<!--{foreach from=$queue->getFields()|array_keys item=field}-->
+            $data['<!--{$field}-->'] = $element->get<!--{$field|ucfirst}-->();
+<!--{/foreach}-->
+            $datas['data'][] = $data;
+		}
+		try{
+			$collection = self::_connectToMedia($this->_connParam);
+			$collection->save($datas);
+		}
+		catch(Exception $e){
+			throw new QueueException('failed on SET command to Mongo server, host = ' . $this->_connParam['host'] . ' port = ' . $this->_connParam['port'] . ' underlying msg:' . $e->getMessage());
+		}
+	}
+	
+	//------------private functions-------------//
+	
+	static private function _connectToMedia($connParam){
+		$mongo = new Mongo('mongodb://' . $connParam['host'] . ':' . $connParam['port']);
+        return $mongo->selectCollection($connParam['database'], $connParam['collection']);
+	}
+}

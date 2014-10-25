@@ -1,0 +1,240 @@
+<?php
+<!--{if $current_router->hasCache()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.cache.current.php';
+<!--{/if}-->
+<!--{if $current_router->hasDset()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.dset.current.php';
+<!--{/if}-->
+<!--{if $current_router->hasStorage()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.storage.current.php';
+<!--{/if}-->
+
+<!--{if isset($obsolete_router)}-->
+<!--{if $obsolete_router->hasCache()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.cache.obsolete.php';
+<!--{/if}-->
+<!--{if $obsolete_router->hasDset()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.dset.obsolete.php';
+<!--{/if}-->
+<!--{if $obsolete_router->hasStorage()}-->
+require_once __DIR__ . '/<!--{$queue->getName()|name2file}-->.storage.obsolete.php';
+<!--{/if}-->
+<!--{/if}-->
+
+class QueueRouterCurrent_<!--{$queue->getName()|name2class}-->{
+<!--{if $current_router->hasCache()}-->
+	static private $_caches = array();
+	static private $_cacheConnParams = <!--{$current_router->getCache()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+<!--{if $current_router->hasDset()}-->
+	static private $_dsets = array();
+	static private $_dsetConnParams = <!--{$current_router->getDset()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+<!--{if $current_router->hasStorage()}-->
+	static private $_storages = array();
+	static private $_storageConnParams = <!--{$current_router->getStorage()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+
+	static public function load($id){
+		$elements = null;
+<!--{if $current_router->hasCache()}-->
+		$elements = self::_getCache($id)->load($id);
+<!--{/if}-->
+<!--{if $current_router->hasStorage()}-->
+		if(!isset($elements)){
+			$elements = self::_getStorage($id)->load($id);
+<!--{if $current_router->hasCache()}-->
+			if(isset($elements) && is_array($elements))
+				self::_getCache($id)->save($id, $elements);
+<!--{/if}-->
+		}
+<!--{/if}-->
+		return $elements;
+	}
+	
+	static public function save($id, Array $elements){
+<!--{if $current_router->hasCache()}-->
+		self::_getCache($id)->save($id, $elements);
+<!--{/if}-->
+<!--{if $current_router->hasDset()}-->
+		self::_getDset($id)->save($id, $elements);
+<!--{elseif $current_router->hasStorage()}-->
+		self::_getStorage($id)->save($id, $elements);
+<!--{/if}-->
+	}
+	
+	//------------functions for private use------------//
+<!--{if $current_router->hasCache()}-->
+
+	static public function _getCache($id){
+		$hashIdx = self::_getCacheHash($id);
+		if(isset(self::$_caches[$hashIdx]))
+			return self::$_caches[$hashIdx];
+
+		self::$_caches[$hashIdx] = new QueueCacheCurrent_<!--{$queue->getName()|name2class}-->(self::getCacheConnParam($hashIdx));
+		return self::$_caches[$hashIdx];
+	}
+	
+	static public function getCacheConnParam($hashIdx){
+		if(!isset(self::$_cacheConnParams[$hashIdx]))
+			throw new QueueException('no route to cache at hash=' . $hashIdx);
+		return self::$_cacheConnParams[$hashIdx];
+	}
+	
+	static public function _getCacheHash($id){
+		<!--{$current_router->getCachePolicy()|trim}-->
+	}
+<!--{/if}-->
+<!--{if $current_router->hasDset()}-->
+
+	static public function _getDset($id){
+		$hashIdx = self::_getDsetHash($id);
+		if(isset(self::$_dsets[$hashIdx]))
+			return self::$_dsets[$hashIdx];
+
+		self::$_dsets[$hashIdx] = new QueueDsetCurrent_<!--{$queue->getName()|name2class}-->(self::getDsetConnParam($hashIdx));
+		return self::$_dsets[$hashIdx];
+	}
+	
+	static public function getDsetConnParam($hashIdx){
+		if(!isset(self::$_dsetConnParams[$hashIdx]))
+			throw new QueueException('no route to dset at hash=' . $hashIdx);
+		return self::$_dsetConnParams[$hashIdx];
+	}
+	
+	static public function _getDsetHash($id){
+		<!--{$current_router->getDsetPolicy()|trim}-->
+	}
+<!--{/if}-->
+<!--{if $current_router->hasStorage()}-->
+
+	static public function _getStorage($id){
+		$hashIdx = self::_getStorageHash($id);
+		if(isset(self::$_storages[$hashIdx]))
+			return self::$_storages[$hashIdx];
+
+		self::$_storages[$hashIdx] = new QueueStorageCurrent_<!--{$queue->getName()|name2class}-->(self::getStorageConnParam($hashIdx));
+		return self::$_storages[$hashIdx];
+	}
+	
+	static public function getStorageConnParam($hashIdx){
+		if(!isset(self::$_storageConnParams[$hashIdx]))
+			throw new QueueException('no route to storage at hash=' . $hashIdx);
+		return self::$_storageConnParams[$hashIdx];
+	}
+	
+	static public function _getStorageHash($id){
+		<!--{$current_router->getStoragePolicy()|trim}-->
+	}
+<!--{/if}-->
+}
+<!--{if isset($obsolete_router)}-->
+
+class QueueRouterObsolete_<!--{$queue->getName()|name2class}-->{
+<!--{if $obsolete_router->hasCache()}-->
+	static private $_caches = array();
+	static private $_cacheConnParams = <!--{$obsolete_router->getCache()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+<!--{if $obsolete_router->hasDset()}-->
+	static private $_dsets = array();
+	static private $_dsetConnParams = <!--{$obsolete_router->getDset()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+<!--{if $obsolete_router->hasStorage()}-->
+	static private $_storages = array();
+	static private $_storageConnParams = <!--{$obsolete_router->getStorage()->getConnParams()|fill_params|dump_array}-->;
+<!--{/if}-->
+
+	static public function load($id){
+		$elements = null;
+<!--{if $obsolete_router->hasCache()}-->
+		$elements = self::_getCache($id)->load($id);
+<!--{/if}-->
+<!--{if $obsolete_router->hasStorage()}-->
+		if(!isset($elements)){
+			$elements = self::_getStorage($id)->load($id);
+<!--{if $obsolete_router->hasCache()}-->
+			if(isset($elements) && is_array($elements))
+				self::_getCache($id)->save($id, $elements);
+<!--{/if}-->
+		}
+<!--{/if}-->
+		return $elements;
+	}
+	
+	static public function save($id, Array $elements){
+<!--{if $obsolete_router->hasCache()}-->
+		self::_getCache($id)->save($id, $elements);
+<!--{/if}-->
+<!--{if $obsolete_router->hasDset()}-->
+		self::_getDset($id)->save($id, $elements);
+<!--{elseif $obsolete_router->hasStorage()}-->
+		self::_getStorage($id)->save($id, $elements);
+<!--{/if}-->
+	}
+	
+	//------------functions for private use------------//
+<!--{if $obsolete_router->hasCache()}-->
+
+	static public function _getCache($id){
+		$hashIdx = self::_getCacheHash($id);
+		if(isset(self::$_caches[$hashIdx]))
+			return self::$_caches[$hashIdx];
+
+		self::$_caches[$hashIdx] = new QueueCacheObsolete_<!--{$queue->getName()|name2class}-->(self::getCacheConnParam($hashIdx));
+		return self::$_caches[$hashIdx];
+	}
+	
+	static public function getCacheConnParam($hashIdx){
+		if(!isset(self::$_cacheConnParams[$hashIdx]))
+			throw new QueueException('no route to cache at hash=' . $hashIdx);
+		return self::$_cacheConnParams[$hashIdx];
+	}
+	
+	static public function _getCacheHash($id){
+		<!--{$obsolete_router->getCachePolicy()|trim}-->
+	}
+<!--{/if}-->
+<!--{if $obsolete_router->hasDset()}-->
+
+	static public function _getDset($id){
+		$hashIdx = self::_getDsetHash($id);
+		if(isset(self::$_dsets[$hashIdx]))
+			return self::$_dsets[$hashIdx];
+
+		self::$_dsets[$hashIdx] = new QueueDsetObsolete_<!--{$queue->getName()|name2class}-->(self::getDsetConnParam($hashIdx));
+		return self::$_dsets[$hashIdx];
+	}
+	
+	static public function getDsetConnParam($hashIdx){
+		if(!isset(self::$_dsetConnParams[$hashIdx]))
+			throw new QueueException('no route to dset at hash=' . $hashIdx);
+		return self::$_dsetConnParams[$hashIdx];
+	}
+	
+	static public function _getDsetHash($id){
+		<!--{$obsolete_router->getDsetPolicy()|trim}-->
+	}
+<!--{/if}-->
+<!--{if $obsolete_router->hasStorage()}-->
+
+	static public function _getStorage($id){
+		$hashIdx = self::_getStorageHash($id);
+		if(isset(self::$_storages[$hashIdx]))
+			return self::$_storages[$hashIdx];
+
+		self::$_storages[$hashIdx] = new QueueStorageObsolete_<!--{$queue->getName()|name2class}-->(self::getStorageConnParam($hashIdx));
+		return self::$_storages[$hashIdx];
+	}
+	
+	static public function getStorageConnParam($hashIdx){
+		if(!isset(self::$_storageConnParams[$hashIdx]))
+			throw new QueueException('no route to storage at hash=' . $hashIdx);
+		return self::$_storageConnParams[$hashIdx];
+	}
+	
+	static public function _getStorageHash($id){
+		<!--{$obsolete_router->getStoragePolicy()|trim}-->
+	}
+<!--{/if}-->
+}
+<!--{/if}-->
