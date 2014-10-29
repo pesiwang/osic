@@ -2,6 +2,8 @@
 class TKey
 {
 	public $type;
+	public $length;
+	public $isFixedLength;
 }
 
 class TObjectField

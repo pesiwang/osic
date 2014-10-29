@@ -51,6 +51,8 @@ class SetBuilder
 		$this->_set = new TSet();
 		$this->_set->key = new TKey();
 		$this->_set->key->type = (string)($xml->key->attributes()->type);
+		$this->_set->key->length = (string)($xml->key->attributes()->length);
+		$this->_set->key->isFixedLength = (bool)($xml->key->attributes()->isFixedLength);
 
 		if(!$xml->capacity)
 			throw new Exception('bad [capacity] section');
@@ -65,6 +67,8 @@ class SetBuilder
 		$element = new TSetElement();
 		$element->key = new TKey();
 		$element->key->type = (string)($xml->attributes()->type);
+		$element->key->length = (string)($xml->attributes()->length);
+		$element->key->isFixedLength = (bool)($xml->attributes()->isFixedLength);
 
 		$element->fields = $this->_compileSetElementField('', $xml->field);
 

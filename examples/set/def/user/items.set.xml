@@ -1,7 +1,7 @@
 <set>
-	<key type="STRING"/>
+	<key type="STRING" length="32" isFixedLength="false"/>
 	<capacity>1000</capacity>
-	<element type="INTEGER">
+	<element type="INTEGER" length="0" isFixedLength="true">
 		<field name="name" type="STRING" />
 		<field name="level" type="INTEGER">100</field>
 		<field name="statistics" type="OBJECT">
