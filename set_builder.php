@@ -177,7 +177,7 @@ class SetBuilder
 
 		$ranges = array();
 		if(preg_match('/^[0-9]+$/i', (string)($xml->attributes()->range)) == 1){
-			$range = array((string)($xml->attributes()->range));
+			$ranges = array((string)($xml->attributes()->range));
 		}   
 		else if(preg_match('/^[0-9]+-[0-9]+$/i', (string)($xml->attributes()->range)) == 1){
 			list($start, $end) = explode('-', (string)($xml->attributes()->range));
