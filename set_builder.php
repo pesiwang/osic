@@ -45,14 +45,14 @@ class SetBuilder
 	}
 
 	private function _compileSet($xml){
-		if(!$xml->key || !$xml->key->attributes()->type)
+		if(!$xml->key || !$xml->key->attributes()->type || !$xml->key->attributes()->length || !$xml->key->attributes()->fixed)
 			throw new Exception('bad [key] section');
 
 		$this->_set = new TSet();
 		$this->_set->key = new TKey();
 		$this->_set->key->type = (string)($xml->key->attributes()->type);
 		$this->_set->key->length = (string)($xml->key->attributes()->length);
-		$this->_set->key->isFixedLength = (bool)($xml->key->attributes()->isFixedLength);
+		$this->_set->key->fixed = (bool)($xml->key->attributes()->fixed);
 
 		if(!$xml->capacity)
 			throw new Exception('bad [capacity] section');
@@ -62,13 +62,13 @@ class SetBuilder
 	}
 
 	private function _compileSetElement($xml){
-		if(!$xml || !$xml->attributes()->type)
+		if(!$xml || !$xml->attributes()->type || !$xml->attributes()->length || !$xml->attributes()->fixed)
 			throw new Exception('bad [element] section');
 		$element = new TSetElement();
 		$element->key = new TKey();
 		$element->key->type = (string)($xml->attributes()->type);
 		$element->key->length = (string)($xml->attributes()->length);
-		$element->key->isFixedLength = (bool)($xml->attributes()->isFixedLength);
+		$element->key->fixed = (bool)($xml->attributes()->fixed);
 
 		$element->fields = $this->_compileSetElementField('', $xml->field);
 

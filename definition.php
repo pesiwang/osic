@@ -3,7 +3,7 @@ class TKey
 {
 	public $type;
 	public $length;
-	public $isFixedLength;
+	public $fixed;
 }
 
 class TObjectField

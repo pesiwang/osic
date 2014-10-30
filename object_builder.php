@@ -45,14 +45,14 @@ class ObjectBuilder
 	}
 
 	private function _compileObject($xml){
-		if(!$xml->key || !$xml->key->attributes()->type || !$xml->key->attributes()->length || !$xml->key->attributes()->isFixedLength)
+		if(!$xml->key || !$xml->key->attributes()->type || !$xml->key->attributes()->length || !$xml->key->attributes()->fixed)
 			throw new Exception('bad [key] section');
 
 		$this->_object = new TObject();
 		$this->_object->key = new TKey();
 		$this->_object->key->type = (string)($xml->key->attributes()->type);
 		$this->_object->key->length = (string)($xml->key->attributes()->length);
-		$this->_object->key->isFixedLength = (bool)($xml->key->attributes()->isFixedLength);
+		$this->_object->key->fixed = (bool)($xml->key->attributes()->fixed);
 
 		$this->_object->fields = $this->_compileObjectField('', $xml->field);
 	}
