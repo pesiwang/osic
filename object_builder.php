@@ -156,7 +156,10 @@ class ObjectBuilder
 			throw new Exception('no [range] attribute found in router');
 
 		$ranges = array();
-		if(preg_match('/^[0-9]+-[0-9]+$/i', (string)($xml->attributes()->range)) == 1){
+		if(preg_match('/^[0-9]+$/i', (string)($xml->attributes()->range)) == 1){
+			$range = array((string)($xml->attributes()->range));
+		}
+		else if(preg_match('/^[0-9]+-[0-9]+$/i', (string)($xml->attributes()->range)) == 1){
 			list($start, $end) = explode('-', (string)($xml->attributes()->range));
 			for($idx = $start; $idx <= $end; ++$idx)
 				$ranges[] = $idx;
