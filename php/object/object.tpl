@@ -34,6 +34,10 @@ class Object_<%$name|osic_name2class%> extends Object{
 	static public function set($id, Object_<%$name|osic_name2class%> $object){
 		ObjectRouter_<%$name|osic_name2class%>::set($id, $object);
 	}
+
+	static public function del($id){
+		ObjectRouter_<%$name|osic_name2class%>::del($id);
+	}
 }
 <%foreach from=$aux_objects key=aux_name item=aux_object%>
 

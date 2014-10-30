@@ -124,7 +124,7 @@ class ObjectStorage_<%$name|osic_name2class%>{
 			list($pdo, $serverParam) = self::_getServerById($id);
 			$stmt = $pdo->prepare('REPLACE INTO ' . $serverParam['database'] . '.' . $serverParam['table'] . ' SET id=:id, data=:data');
 			$stmt->bindValue(':id', $id);
-			$stmt->bindValue(':data', json_encode($data->toArray()));
+			$stmt->bindValue(':data', json_encode($object->toArray()));
 			$stmt->execute();
 		}
 		catch(\Exception $e){
@@ -271,7 +271,7 @@ class ObjectStorageObsolete_<%$name|osic_name2class%>{
 			list($pdo, $serverParam) = self::_getServerById($id);
 			$stmt = $pdo->prepare('REPLACE INTO ' . $serverParam['database'] . '.' . $serverParam['table'] . ' SET id=:id, data=:data');
 			$stmt->bindValue(':id', $id);
-			$stmt->bindValue(':data', json_encode($data->toArray()));
+			$stmt->bindValue(':data', json_encode($object->toArray()));
 			$stmt->execute();
 		}
 		catch(\Exception $e){

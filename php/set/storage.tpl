@@ -288,7 +288,7 @@ class SetStorageObsolete_<%$name|osic_name2class%>{
 
 			$stmt = $pdo->prepare('REPLACE INTO ' . $serverParam['database'] . '.' . $serverParam['table'] . ' SET id=:id, data=:data');
 			$stmt->bindValue(':id', $id);
-			$stmt->bindValue(':data', json_encode($data->toArray()));
+			$stmt->bindValue(':data', json_encode($data));
 			$stmt->execute();
 		}
 		catch(\Exception $e){

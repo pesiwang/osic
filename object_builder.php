@@ -131,8 +131,9 @@ class ObjectBuilder
 				}
 			}
 			else if(strcasecmp($media->name, 'MYSQL') == 0){
-				if(!$item->host || !$item->port || !$item->user || !$item->password || !$item->database || !$item->table)
+				if(!$item->host || !$item->port || !$item->user || !$item->database || !$item->table){
 					throw new Exception('incorrect MYSQL server configuration');
+				}
 				foreach($ranges as $idx){
 					$server = new TRouterMediaServerMysql();
 					$server->host = sprintf((string)($item->host), $idx);
