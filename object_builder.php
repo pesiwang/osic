@@ -180,7 +180,7 @@ try{
 	$folderRouter = $argv[3];
 	$fileTpl = $argv[4];
 	$folderModule = dirname(str_replace('.', '/', $moduleName));
-	$fileDef = $folderDef . '/' . $folderModule . '/' . basename(str_replace('.', '/', $moduleName)) . '.object.xml';
+	$fileDef = $folderDef . '/' . $folderModule . '/' . basename(str_replace('.', '/', $moduleName)) . '.xml';
 	$fileRouter = $folderRouter. '/' . $folderModule . '/' . basename(str_replace('.', '/', $moduleName)) . '.current.xml';
 	$fileObsoleteRouter = $folderRouter . '/' . $folderModule . '/' . basename(str_replace('.', '/', $moduleName)) . '.obsolete.xml';
 
