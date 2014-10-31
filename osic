@@ -61,7 +61,7 @@ if [ "${V_TYPE}" == "object" ] || [ "${V_TYPE}" == "OBJECT" ]; then
 		fi
 	done
 	cp ${V_SCRIPT_FOLDER}/php/lib/object.class.php ${V_TARGET_FOLDER}/
-else
+elif [ "${V_TYPE}" == "set" ] || [ "${V_TYPE}" == "SET" ]; then
 	for xml in `find ${V_DEF_FOLDER} -name "*.xml"`
 	do
 		V_MOD="${xml/${V_DEF_FOLDER}/}"
@@ -89,5 +89,7 @@ else
 		fi
 	done
 	cp ${V_SCRIPT_FOLDER}/php/lib/set.class.php ${V_TARGET_FOLDER}/
+else
+	echo "unknown type ${V_TYPE}"
 fi
 	echo "done"
