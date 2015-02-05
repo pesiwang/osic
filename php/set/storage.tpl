@@ -131,7 +131,7 @@ class SetStorage_<%$name|osic_name2class%>{
 		return NULL;
 	}
 
-	static public function save($id, Array $element){
+	static public function save($id, Array $elements){
 		try{
 			list($pdo, $serverParam) = self::_getServerById($id);
 			$data = array();
