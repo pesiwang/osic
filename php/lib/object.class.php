@@ -26,13 +26,12 @@ class Object
 	}
 }
 
-function object_loader_replace_callback($matches){
-	return '/' . strtolower($matches[1]);
-}
-
 function object_loader($class) {
 	if(0 == strncasecmp($class, 'osi\\Object_', 11)){
-		require_once __DIR__ . preg_replace_callback('/([A-Z])/', "\osi\object_loader_replace_callback", substr($class, 11)) . '.object.php';
+		$class = substr($class, 11);
+		$class = str_replace('_', '/', $class);
+		$class = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class));
+		require_once __DIR__ . '/' . $class . '.object.php'; 
 	}
 }
 

@@ -26,16 +26,18 @@ class SetElement
 	}
 }
 
-function set_loader_replace_callback($matches){
-	return '/' . strtolower($matches[1]);
-}
-
 function set_loader($class) {
 	if(0 == strncasecmp($class, 'osi\\Set_', 8)){
-		require_once __DIR__ . preg_replace_callback('/([A-Z])/', "\osi\set_loader_replace_callback", substr($class, 8)) . '.set.php';
+		$class = substr($class, 8);
+		$class = str_replace('_', '/', $class);
+		$class = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class));
+		require_once __DIR__ . '/' . $class . '.set.php'; 
 	}
 	else if(0 == strncasecmp($class, 'osi\\SetElement_', 15)){
-		require_once __DIR__ . preg_replace_callback('/([A-Z])/', "\osi\set_loader_replace_callback", substr($class, 15)) . '.set.php';
+		$class = substr($class, 15);
+		$class = str_replace('_', '/', $class);
+		$class = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class));
+		require_once __DIR__ . '/' . $class . '.set.php'; 
 	}
 }
 
