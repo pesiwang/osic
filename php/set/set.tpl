@@ -73,7 +73,7 @@ class Set_<%$name|osic_name2class%>{
 <%/if%>
 <%/foreach%>
 
-	protected function _loadElements($id){
+	static protected function _loadElements($id){
 		$elements = SetRouter_<%$name|osic_name2class%>::load($id);
 <%if isset($obsolete_router)%>
 		if(!isset($elements)){
@@ -85,7 +85,7 @@ class Set_<%$name|osic_name2class%>{
 		return $elements;
 	}
 
-	protected function _saveElements($id, Array $elements){
+	static protected function _saveElements($id, Array $elements){
 		SetRouter_<%$name|osic_name2class%>::save($id, $elements);
 	}
 }
