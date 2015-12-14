@@ -52,7 +52,7 @@ class SetBuilder
 		$this->_set->key = new TKey();
 		$this->_set->key->type = (string)($xml->key->attributes()->type);
 		$this->_set->key->length = (string)($xml->key->attributes()->length);
-		$this->_set->key->fixed = (bool)($xml->key->attributes()->fixed);
+		$this->_set->key->fixed = (strcasecmp($xml->key->attributes()->fixed, "true") == 0);
 
 		if(!$xml->capacity)
 			throw new Exception('bad [capacity] section');
