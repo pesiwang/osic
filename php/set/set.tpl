@@ -75,7 +75,7 @@ class Set_<%$name|osic_name2class%>{
 		}
 <%/if%>
 		if(!isset($elements)){
-			$elements	= array();
+			return NULL;
 		}
 		return new Set_<%$name|osic_name2class%>($elements);
 	}
