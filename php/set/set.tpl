@@ -7,7 +7,7 @@ class Set_<%$name|osic_name2class%>{
 
 	private $_elements	= NULL;
 
-	public function __construct(array $elements) {
+	public function __construct(array $elements = array()) {
 		$this->_elements	= $elements;
 	}
 	
