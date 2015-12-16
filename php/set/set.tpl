@@ -5,75 +5,67 @@ require_once __DIR__ . '/<%$name|osic_name2file%>.router.php';
 class Set_<%$name|osic_name2class%>{
 	const CAPACITY = <%$set->capacity%>;
 
-	static public function fetch($id, $elementId){
-		$elements = self::_loadElements($id);
-		if(!isset($elements) || !isset($elements[$elementId]))
+	private $_elements	= NULL;
+
+	public function __construct(array $elements) {
+		$this->_elements	= $elements;
+	}
+	
+	public function fetch($elementId){
+		if(!isset($this->_elements) || !isset($this->_elements[$elementId]))
 			return NULL;
 
-		return $elements[$elementId];
+		return $this->_elements[$elementId];
 	}
 
-	static public function put($id, $elementId, SetElement_<%$name|osic_name2class%> $element){
-		$elements = self::_loadElements($id);
-		if(!isset($elements) || !is_array($elements))
-			$elements = array();
+	public function put($elementId, SetElement_<%$name|osic_name2class%> $element){
+		if(!isset($this->_elements) || !is_array($this->_elements))
+			$this->_elements = array();
 
-		$elements[$elementId] = $element;
-		if(count($elements) > <%$set->capacity%>)
+		$this->_elements[$elementId] = $element;
+		if(count($this->_elements) > self::CAPACITY)
 			throw new Exception('max capacity "<%$set->capacity%>" reached');
-
-		self::_saveElements($id, $elements);
 	}
 
-	static public function puts($id, Array $elements){
-		$oldElements = self::_loadElements($id);
-		if(!isset($oldElements) || !is_array($oldElements))
-			$oldElements = array();
-
-		$elements += $oldElements;
-		if(count($elements) > <%$set->capacity%>)
+	public function puts(Array $elements){
+		$this->_elements += $elements;
+		if(count($this->_elements) > self::CAPACITY)
 			throw new Exception('max capacity "<%$set->capacity%>" reached');
-
-		self::_saveElements($id, $elements);
 	}
 
-	static public function erase($id, $elementId){
-		$elements = self::_loadElements($id);
-		if(!isset($elements) || !is_array($elements) || !isset($elements[$elementId]))
+	public function erase($elementId){
+		if(!isset($this->_elements) || !is_array($this->_elements) || !isset($this->_elements[$elementId]))
 			return;
 
-		unset($elements[$elementId]);
-		self::_saveElements($id, $elements);
+		unset($this->_elements[$elementId]);
 	}
 
-	static public function clear($id){
-		self::_saveElements($id, array());
+	public function clear(){
+		$this->_elements	= array();
 	}
 
-	static public function count($id){
-		$elements = self::_loadElements($id);
-		if(!isset($elements) || !is_array($elements))
+	public function count(){
+		if(!isset($this->_elements) || !is_array($this->_elements))
 			return 0;
-		return count($elements);
+		return count($this->_elements);
 	}
 <%foreach from=$set->element->fields item=field%>
 <%if $field->index != NULL%>
 
-	static public function listBy<%$field->name|ucfirst%>($id, $offset, $number){
-		$elements = self::_loadElements($id);
-		if(!isset($elements) || !is_array($elements))
+	public function listBy<%$field->name|ucfirst%>($offset, $number){
+		if(!isset($this->_elements) || !is_array($this->_elements))
 			return array();
 <%if strcasecmp($field->index, 'STRING') == 0%>
-		uasort($elements, create_function('$lhs, $rhs', 'return strcmp($lhs-><%$field->name%>, $rhs-><%$field->name%>);'));
+		uasort($this->_elements, create_function('$lhs, $rhs', 'return strcmp($lhs-><%$field->name%>, $rhs-><%$field->name%>);'));
 <%else%>
-		uasort($elements, create_function('$lhs, $rhs', 'return $lhs-><%$field->name%> - $rhs-><%$field->name%>;'));
+		uasort($this->_elements, create_function('$lhs, $rhs', 'return $lhs-><%$field->name%> - $rhs-><%$field->name%>;'));
 <%/if%>
-		return array_slice($elements, $offset, $number, true);
+		return array_slice($this->_elements, $offset, $number, true);
 	}
 <%/if%>
 <%/foreach%>
 
-	static protected function _loadElements($id){
+	static public function load($id){
 		$elements = SetRouter_<%$name|osic_name2class%>::load($id);
 <%if isset($obsolete_router)%>
 		if(!isset($elements)){
@@ -82,12 +74,13 @@ class Set_<%$name|osic_name2class%>{
 				SetRouter_<%$name|osic_name2class%>::save($id, $elements);
 		}
 <%/if%>
-		return $elements;
+		return new Set_<%$name|osic_name2class%>($elements);
 	}
 
-	static protected function _saveElements($id, Array $elements){
-		SetRouter_<%$name|osic_name2class%>::save($id, $elements);
+	static public function save($id,  Set_<%$name|osic_name2class%> $set){
+		SetRouter_<%$name|osic_name2class%>::save($id, $set->_elements);
 	}
+
 }
 
 class SetElement_<%$name|osic_name2class%> extends SetElement{
