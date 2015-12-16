@@ -74,6 +74,9 @@ class Set_<%$name|osic_name2class%>{
 				SetRouter_<%$name|osic_name2class%>::save($id, $elements);
 		}
 <%/if%>
+		if(!isset($elements)){
+			$elements	= array();
+		}
 		return new Set_<%$name|osic_name2class%>($elements);
 	}
 
