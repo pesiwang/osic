@@ -2,8 +2,8 @@
 	<key type="STRING" length="32" fixed="false"/>
 	<capacity>1000</capacity>
 	<element type="INTEGER" length="0" fixed="true">
-		<field name="name" type="STRING" />
-		<field name="level" type="INTEGER">100</field>
+		<field name="name" type="STRING" index="ASC|DESC"/>
+		<field name="level" type="INTEGER" index="ASC">100</field>
 		<field name="statistics" type="OBJECT">
 			<field name="useTimes" type="BIGINT"/>
 			<field name="remainNum" type="BIGINT"/>

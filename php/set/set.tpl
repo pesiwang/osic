@@ -50,15 +50,30 @@ class Set_<%$name|osic_name2class%>{
 		return count($this->_elements);
 	}
 <%foreach from=$set->element->fields item=field%>
-<%if $field->index != NULL%>
+<%if strpos($field->index, 'ASC') !== FALSE%>
 
-	public function listBy<%$field->name|ucfirst%>($offset, $number){
+	public function listBy<%$field->name|ucfirst%>Asc($offset, $number){
 		if(!isset($this->_elements) || !is_array($this->_elements))
 			return array();
-<%if strcasecmp($field->index, 'STRING') == 0%>
+
+<%if strcasecmp($field->type, 'STRING') == 0%>
 		uasort($this->_elements, create_function('$lhs, $rhs', 'return strcmp($lhs-><%$field->name%>, $rhs-><%$field->name%>);'));
 <%else%>
 		uasort($this->_elements, create_function('$lhs, $rhs', 'return $lhs-><%$field->name%> - $rhs-><%$field->name%>;'));
+<%/if%>
+		return array_slice($this->_elements, $offset, $number, true);
+	}
+<%/if%>
+<%if strpos($field->index, 'DESC') !== FALSE%>
+
+	public function listBy<%$field->name|ucfirst%>Desc($offset, $number){
+		if(!isset($this->_elements) || !is_array($this->_elements))
+			return array();
+
+<%if strcasecmp($field->type, 'STRING') == 0%>
+		uasort($this->_elements, create_function('$lhs, $rhs', 'return strcmp($rhs-><%$field->name%>, $lhs-><%$field->name%>);'));
+<%else%>
+		uasort($this->_elements, create_function('$lhs, $rhs', 'return $rhs-><%$field->name%> - $lhs-><%$field->name%>;'));
 <%/if%>
 		return array_slice($this->_elements, $offset, $number, true);
 	}
