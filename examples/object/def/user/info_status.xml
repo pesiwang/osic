@@ -1,5 +1,5 @@
 <object>
-	<key type="STRING" length="32" fixed="true"/>
+	<key type="STRING" length="32" fixed="TRUE"/>
 	<field name="name" type="STRING" />
 	<field name="age" type="INTEGER">18</field>
 	<field name="statistics" type="OBJECT">

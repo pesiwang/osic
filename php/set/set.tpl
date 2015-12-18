@@ -58,7 +58,7 @@ class Set_<%$name|osic_name2class%>{
 		return count($this->_elements);
 	}
 <%foreach from=$set->element->fields item=field%>
-<%if strpos($field->index, 'ASC') !== FALSE%>
+<%if $field->index == TRUE%>
 
 	public function listBy<%$field->name|ucfirst%>Asc($offset, $number){
 		if(!isset($this->_elements) || !is_array($this->_elements))
@@ -71,8 +71,6 @@ class Set_<%$name|osic_name2class%>{
 <%/if%>
 		return array_slice($this->_elements, $offset, $number, true);
 	}
-<%/if%>
-<%if strpos($field->index, 'DESC') !== FALSE%>
 
 	public function listBy<%$field->name|ucfirst%>Desc($offset, $number){
 		if(!isset($this->_elements) || !is_array($this->_elements))

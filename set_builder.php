@@ -52,7 +52,7 @@ class SetBuilder
 		$this->_set->key = new TKey();
 		$this->_set->key->type = (string)($xml->key->attributes()->type);
 		$this->_set->key->length = (string)($xml->key->attributes()->length);
-		$this->_set->key->fixed = (strcasecmp($xml->key->attributes()->fixed, "true") == 0);
+		$this->_set->key->fixed = (strcasecmp($xml->key->attributes()->fixed, "TRUE") == 0);
 
 		if(!$xml->capacity)
 			throw new Exception('bad [capacity] section');
@@ -68,7 +68,7 @@ class SetBuilder
 		$element->key = new TKey();
 		$element->key->type = (string)($xml->attributes()->type);
 		$element->key->length = (string)($xml->attributes()->length);
-		$element->key->fixed = (bool)($xml->attributes()->fixed);
+		$element->key->fixed = (strcasecmp($xml->attributes()->fixed, "TRUE") == 0);
 
 		$element->fields = $this->_compileSetElementField('', $xml->field);
 
@@ -85,8 +85,12 @@ class SetBuilder
 			$field->type = (string)($item->attributes()->type);
 			$field->name = (string)($item->attributes()->name);
 			$field->fullname = $prefix == '' ? $field->name : $prefix . '.' . $field->name;
-			if($item->attributes()->index)
-				$field->index = (string)($item->attributes()->index);
+			if($item->attributes()->index) {
+				$field->index = (strcasecmp($item->attributes()->index, 'TRUE') == 0);
+			} else {
+				$field->index = false;
+			}
+
 			if(strcasecmp($field->type, 'OBJECT') == 0)
 				$this->_auxObjects[$field->fullname] = $this->_compileSetElementField($field->fullname, $item->field);
 			else{

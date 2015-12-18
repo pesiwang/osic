@@ -52,7 +52,7 @@ class ObjectBuilder
 		$this->_object->key = new TKey();
 		$this->_object->key->type = (string)($xml->key->attributes()->type);
 		$this->_object->key->length = (string)($xml->key->attributes()->length);
-		$this->_object->key->fixed = (strcasecmp($xml->key->attributes()->fixed, "true") == 0);
+		$this->_object->key->fixed = (strcasecmp($xml->key->attributes()->fixed, "TRUE") == 0);
 
 		$this->_object->fields = $this->_compileObjectField('', $xml->field);
 	}

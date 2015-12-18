@@ -1,9 +1,9 @@
 <set>
-	<key type="STRING" length="32" fixed="false"/>
+	<key type="STRING" length="32" fixed="FALSE"/>
 	<capacity>1000</capacity>
-	<element type="INTEGER" length="0" fixed="true">
-		<field name="name" type="STRING" index="ASC|DESC"/>
-		<field name="level" type="INTEGER" index="ASC">100</field>
+	<element type="INTEGER" length="0" fixed="TRUE">
+		<field name="name" type="STRING" index="TRUE"/>
+		<field name="level" type="INTEGER">100</field>
 		<field name="statistics" type="OBJECT">
 			<field name="useTimes" type="BIGINT"/>
 			<field name="remainNum" type="BIGINT"/>
