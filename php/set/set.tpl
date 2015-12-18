@@ -10,7 +10,15 @@ class Set_<%$name|osic_name2class%>{
 	public function __construct(array $elements = array()) {
 		$this->_elements	= $elements;
 	}
-	
+
+	public function fetchAll() {
+		if(!isset($this->_elements) || !is_array($this->_elements)) {
+			return array();
+		}
+		
+		return $this->_elements;
+	}
+
 	public function fetch($elementId){
 		if(!isset($this->_elements) || !isset($this->_elements[$elementId]))
 			return NULL;
