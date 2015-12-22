@@ -1,0 +1,95 @@
+#!/bin/bash
+V_SCRIPT_FOLDER=$(cd "$(dirname "$0")"; pwd)
+if [ $# -lt 4 ];
+then
+	echo "usage: $0 <type:object|set> <def_folder> <router_folder> <target_folder>"
+	exit 1;
+fi
+
+V_TYPE=$1
+V_DEF_FOLDER=$2
+V_ROUTER_FOLDER=$3
+V_TARGET_FOLDER=$4
+
+if [ ! -d ${V_DEF_FOLDER} ]; then
+	echo "Def folder's not existed, Exiting";
+	exit 0;
+fi
+
+if [ ! -d ${V_ROUTER_FOLDER} ]; then
+	echo "Router folder's not existed, Exiting";
+	exit 0;
+fi
+
+if [ -d ${V_TARGET_FOLDER} ]; then
+	echo -n "Target folder already exists, Overwrite(Y/N)?"
+	read YESNO
+	if [ "$YESNO" != 'Y' ] && [ "$YESNO" != 'y' ]; then
+		exit 0;
+	fi
+
+	rm -rf ${V_TARGET_FOLDER}
+fi
+
+mkdir -p ${V_TARGET_FOLDER}
+
+if [ "${V_TYPE}" == "object" ] || [ "${V_TYPE}" == "OBJECT" ]; then
+	for xml in `find ${V_DEF_FOLDER} -name "*.xml"`
+	do
+		V_MOD="${xml/${V_DEF_FOLDER}/}"
+		V_MOD=$(echo ${V_MOD} | sed 's/^\///' | sed -r 's/\.[^\.]+//g')
+
+		V_MOD_NAME=$(basename "${V_MOD}")
+		V_MOD_PATH=$(dirname "${V_MOD}")
+		if [ "${V_MOD_PATH}" == "." ]; then
+			V_MOD_PATH=""
+			fi
+
+		V_STANDARD_MOD=$(echo "${V_MOD_PATH}" | sed 's/\//\./g')
+		V_STANDARD_MOD=${V_STANDARD_MOD}.${V_MOD_NAME}
+		V_STANDARD_MOD=$(echo ${V_STANDARD_MOD} | sed 's/^\.//')
+		mkdir -p ${V_TARGET_FOLDER}/${V_MOD_PATH} >/dev/null 2>&1
+
+		echo "compiling module ${V_STANDARD_MOD}..."
+		php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/object/object.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.object.php
+		php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/object/router.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.router.php
+		if [ $(php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/helper/list_router_components.tpl | grep 'cache' | wc -l) -gt 0 ]; then
+			php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/object/cache.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.cache.php
+		fi
+		if [ $(php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/helper/list_router_components.tpl | grep 'storage' | wc -l) -gt 0 ]; then
+			php ${V_SCRIPT_FOLDER}/object_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/object/storage.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.storage.php
+		fi
+	done
+	cp ${V_SCRIPT_FOLDER}/php/lib/object.class.php ${V_TARGET_FOLDER}/
+elif [ "${V_TYPE}" == "set" ] || [ "${V_TYPE}" == "SET" ]; then
+	for xml in `find ${V_DEF_FOLDER} -name "*.xml"`
+	do
+		V_MOD="${xml/${V_DEF_FOLDER}/}"
+		V_MOD=$(echo ${V_MOD} | sed 's/^\///' | sed -r 's/\.[^\.]+//g')
+
+		V_MOD_NAME=$(basename "${V_MOD}")
+		V_MOD_PATH=$(dirname "${V_MOD}")
+		if [ "${V_MOD_PATH}" == "." ]; then
+			V_MOD_PATH=""
+			fi
+
+		V_STANDARD_MOD=$(echo "${V_MOD_PATH}" | sed 's/\//\./g')
+		V_STANDARD_MOD=${V_STANDARD_MOD}.${V_MOD_NAME}
+		V_STANDARD_MOD=$(echo ${V_STANDARD_MOD} | sed 's/^\.//')
+		mkdir -p ${V_TARGET_FOLDER}/${V_MOD_PATH} >/dev/null 2>&1
+
+		echo "compiling module ${V_STANDARD_MOD}..."
+		php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/set/set.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.set.php
+		php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/set/router.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.router.php
+		if [ $(php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/helper/list_router_components.tpl | grep 'cache' | wc -l) -gt 0 ]; then
+			php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/set/cache.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.cache.php
+		fi
+		if [ $(php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/helper/list_router_components.tpl | grep 'storage' | wc -l) -gt 0 ]; then
+			php ${V_SCRIPT_FOLDER}/set_builder.php ${V_STANDARD_MOD} ${V_DEF_FOLDER} ${V_ROUTER_FOLDER} ${V_SCRIPT_FOLDER}/php/set/storage.tpl > ${V_TARGET_FOLDER}/${V_MOD_PATH}/${V_MOD_NAME}.storage.php
+		fi
+	done
+	cp ${V_SCRIPT_FOLDER}/php/lib/set.class.php ${V_TARGET_FOLDER}/
+else
+	echo "unknown type ${V_TYPE}"
+fi
+	echo "done"

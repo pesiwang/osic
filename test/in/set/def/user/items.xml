@@ -1,0 +1,12 @@
+<set>
+	<key type="STRING" length="32" fixed="false"/>
+	<capacity>1000</capacity>
+	<element type="INTEGER" length="0" fixed="true">
+		<field name="name" type="STRING" index="name" />
+		<field name="level" type="INTEGER">100</field>
+		<field name="statistics" type="OBJECT">
+			<field name="useTimes" type="BIGINT"/>
+			<field name="remainNum" type="BIGINT"/>
+		</field>
+	</element>
+</set>

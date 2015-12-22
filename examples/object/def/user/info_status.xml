@@ -1,0 +1,9 @@
+<object>
+	<key type="STRING" length="32" fixed="TRUE"/>
+	<field name="name" type="STRING" />
+	<field name="age" type="INTEGER">18</field>
+	<field name="statistics" type="OBJECT">
+		<field name="loginTimes" type="BIGINT"/>
+		<field name="level" type="INTEGER"/>
+	</field>
+</object>
