@@ -32,13 +32,13 @@ class Set_<%$name|osic_name2class%>{
 
 		$this->_elements[$elementId] = $element;
 		if(count($this->_elements) > self::CAPACITY)
-			throw new Exception('max capacity "<%$set->capacity%>" reached');
+			throw new \Exception('max capacity "<%$set->capacity%>" reached');
 	}
 
 	public function puts(Array $elements){
 		$this->_elements += $elements;
 		if(count($this->_elements) > self::CAPACITY)
-			throw new Exception('max capacity "<%$set->capacity%>" reached');
+			throw new \Exception('max capacity "<%$set->capacity%>" reached');
 	}
 
 	public function erase($elementId){
